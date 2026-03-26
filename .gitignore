@@ -1,0 +1,30 @@
+.DS_Store
+.worktrees/
+.build/
+target/
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.swp
+*.tmp
+node_modules/
+frontend/dist/
+.tmp/
+docs/
+# AI assistant config
+CLAUDE.md
+AGENTS.md
+
+# Environment / secrets
+.env*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace

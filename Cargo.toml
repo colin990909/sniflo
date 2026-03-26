@@ -1,0 +1,12 @@
+[workspace]
+members = ["frontend/src-tauri"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+license = "MIT"
+authors = ["colin"]
+repository = "https://github.com/colin990909/sniflo"
+homepage = "https://github.com/colin990909/sniflo"
+description = "Cross-platform HTTP proxy debugger built with React and Tauri v2"

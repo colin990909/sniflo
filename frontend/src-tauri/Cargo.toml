@@ -1,0 +1,44 @@
+[package]
+name = "Sniflo"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Sniflo Tauri backend — HTTP proxy debugger"
+repository = "https://github.com/colin990909/sniflo"
+
+[lib]
+name = "http_proxy_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "macros", "sync", "time", "process"] }
+bytes = "1.10"
+httparse = "1.10"
+rcgen = { version = "0.13", features = ["x509-parser"] }
+webpki-roots = "0.26"
+tokio-rustls = "0.26"
+rustls = { version = "0.23", default-features = false, features = ["ring", "logging", "std"] }
+rustls-pemfile = "2"
+base64 = "0.22"
+uuid = { version = "1", features = ["v4"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+async-trait = "0.1"
+futures-util = "0.3"
+parking_lot = "0.12"
+flate2 = "1"
+brotli = "8"
+zstd = "0.13"
+boa_engine = { version = "0.20", features = ["annex-b"] }
+
+[dev-dependencies]
+tempfile = "3"

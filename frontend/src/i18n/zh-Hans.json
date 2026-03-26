@@ -1,0 +1,390 @@
+{
+  "app": { "title": "网络代理" },
+  "sidebar": {
+    "workspace": "工作区",
+    "home": "主页",
+    "sessions": "会话",
+    "breakpoints": "断点",
+    "ai": "AI",
+    "scripts": "脚本",
+    "configuration": "配置",
+    "proxyStatus": "代理状态",
+    "status": {
+      "starting": "启动中",
+      "running": "运行中",
+      "stopped": "已停止",
+      "failed": "启动失败"
+    },
+    "settings": "设置",
+    "aiRuntimes": "AI 运行时",
+    "certificates": "证书"
+  },
+  "home": {
+    "tagline": "从真实工作流开始，而不是在占位页面里来回寻找。",
+    "dashboard": "控制台",
+    "controlCenter": "控制中心",
+    "quickActions": "快捷操作",
+    "trafficSnapshot": "流量快照",
+    "snapshotWindow": "最近 {{seconds}} 秒",
+    "snapshotEmpty": "启动代理后，这里会显示实时流量",
+    "systemReadiness": "系统准备度",
+    "recentActivity": "近期动态",
+    "inspect": { "title": "查看会话", "subtitle": "打开已捕获的 HTTP 和 HTTPS 流量" },
+    "breakpoints": { "title": "调试断点", "subtitle": "暂停、检查并恢复被拦截的流量" },
+    "ai": { "title": "AI 工作台", "subtitle": "附加会话并用 AI 分析请求" },
+    "certificates": { "title": "安装证书", "subtitle": "准备 HTTPS MITM 和信任配置" },
+    "stats": {
+      "sessions": "已捕获",
+      "sessionsUnit": "个会话",
+      "rules": "{{count}} 条规则",
+      "pending": "{{count}} 待处理",
+      "noRules": "无规则",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "ready": "就绪",
+      "notConfigured": "未配置",
+      "caInstalled": "CA 已信任",
+      "caGenerated": "CA 已生成",
+      "caNotSetup": "未配置",
+      "configure": "配置",
+      "upstream": "上游代理",
+      "off": "关闭"
+    }
+  },
+  "capture": {
+    "title": "拦截请求",
+    "description": "启动本地 HTTP 代理后，把客户端或系统代理指向它。",
+    "listenHost": "监听地址",
+    "listenPort": "监听端口",
+    "start": "启动代理",
+    "starting": "启动中…",
+    "stop": "停止代理",
+    "proxyAddress": "代理地址",
+    "howToUse": "如何拦截",
+    "status": {
+      "starting": "正在启动代理…",
+      "running": "代理正在监听 {{address}}",
+      "stopped": "代理已停止",
+      "failed": "代理启动失败"
+    },
+    "configureClient": "把客户端或系统 HTTP 代理配置为 {{address}}。新的 HTTP 请求会出现在会话列表中。",
+    "upstream": {
+      "title": "上游代理",
+      "enabled": "启用上游代理",
+      "host": "上游地址",
+      "port": "上游端口",
+      "description": "将捕获的流量转发到上游代理（如 Clash 127.0.0.1:7890）。"
+    }
+  },
+  "sessions": {
+    "captured": { "title": "已捕获会话" },
+    "search": { "placeholder": "搜索主机" },
+    "select": { "prompt": "选择一个已捕获会话" },
+    "noCaptures": "暂无已捕获会话",
+    "noCapturesHint": "启动代理并发起 HTTP 请求，捕获的会话将显示在这里。",
+    "noResults": "无匹配请求",
+    "clearAll": "清空全部会话",
+    "selected": "已选 {{count}} 项",
+    "table": { "name": "名称", "status": "状态", "method": "方法", "host": "主机", "type": "类型" }
+  },
+  "detail": {
+    "request": "请求",
+    "response": "响应",
+    "headers": "头部",
+    "body": "正文",
+    "preview": "预览",
+    "selectSession": "选择一个会话",
+    "copyUrl": "复制 URL",
+    "copy": "复制",
+    "curlCommand": "cURL 命令",
+    "noRequestBody": "无请求正文",
+    "emptyResponse": "空响应",
+    "binaryData": "{{size}} 二进制数据",
+    "formatted": "已格式化",
+    "noPreview": "无法预览",
+    "general": "常规",
+    "payload": "负载",
+    "requestHeaders": "请求头",
+    "responseHeaders": "响应头",
+    "queryParams": "查询字符串参数",
+    "eventstream": "EventStream"
+  },
+  "breakpoint": {
+    "title": "断点",
+    "forward": "放行",
+    "drop": "丢弃",
+    "enabled": "断点已启用",
+    "waiting": "等待下一个 HTTP 请求…",
+    "requestPhase": "请求断点",
+    "responsePhase": "响应断点",
+    "method": "方法",
+    "requestHeaders": "请求头",
+    "requestBody": "请求正文",
+    "statusCode": "状态码",
+    "responseHeaders": "响应头",
+    "responseBody": "响应正文",
+    "headerKey": "键",
+    "headerValue": "值",
+    "newKey": "新键名",
+    "newValue": "新值",
+    "rulesDescription": "定义规则，暂停匹配的 HTTP 请求以便检查和编辑。",
+    "addRule": "添加规则",
+    "noRules": "暂无断点规则",
+    "noRulesHint": "添加规则以暂停匹配主机、路径或方法的 HTTP 请求，进行检查和编辑。",
+    "anyHost": "任意主机",
+    "phase": { "request": "请求阶段", "response": "响应阶段", "both": "双向" },
+    "enableToggle": "启用",
+    "pendingCount": "{{count}} 个待处理",
+    "host": "主机",
+    "path": "路径",
+    "anyMethod": "任意",
+    "deleteRule": "删除规则",
+    "addHeader": "添加请求头",
+    "deleteHeader": "删除请求头",
+    "disabledWarning": "断点已全局禁用 — 请打开上方开关以激活"
+  },
+  "script": {
+    "title": "脚本",
+    "active": "当前",
+    "enableToggle": "启用",
+    "addScript": "新建脚本",
+    "newName": "新脚本",
+    "noScripts": "暂无脚本",
+    "noScriptsHint": "创建脚本以自动修改通过代理的 HTTP 请求和响应。",
+    "selectScript": "选择一个脚本进行编辑",
+    "deleteScript": "删除脚本",
+    "name": "名称",
+    "urlPattern": "URL 匹配模式",
+    "test": "测试",
+    "save": "保存",
+    "executionLog": "执行日志",
+    "noLogs": "暂无执行日志",
+    "disabledWarning": "脚本已全局禁用 — 请打开上方开关以激活",
+    "phase": {
+      "request": "请求",
+      "response": "响应",
+      "both": "双向"
+    }
+  },
+  "ai": {
+    "transcript": { "title": "AI 对话记录", "empty": "对话历史会显示在这里。" },
+    "tool": { "title": "工具输出", "empty": "工具调用结果会显示在这里。", "attachedList": "已附加会话: {{list}}", "input": "输入", "output": "输出", "error": "错误", "expand": "展开", "collapse": "收起" },
+    "skill": { "label": "技能", "apiDebug": "API 调试分析师", "security": "安全审计助手", "packet": "抓包排障助手", "rewrite": "Mock/改写生成器", "manager": "技能管理", "install": "安装", "uninstall": "卸载", "installed": "已安装", "noSkills": "暂无已安装Skill", "noSkillsHint": "安装技能包以扩展 Agent 能力", "installFrom": "从目录安装…", "tools": "{{count}} 个工具" },
+    "attached": { "count": "已附加会话: {{count}}" },
+    "error": {
+      "modelLoadFailed": "加载模型列表失败",
+      "sendFailed": "消息发送失败",
+      "loadConversationsFailed": "加载对话列表失败",
+      "loadSkillsFailed": "加载技能列表失败",
+      "installSkillFailed": "安装技能失败"
+    },
+    "message": {
+      "copy": "复制消息",
+      "edit": "编辑消息"
+    },
+    "code": {
+      "copy": "复制代码"
+    },
+    "scrollToBottom": "滚动到底部",
+    "composer": { "placeholder": "描述你想排查的 HTTP 问题", "mentionTitle": "请求列表" },
+    "runtime": { "section": "运行时", "openai": "OpenAI 兼容", "anthropic": "Anthropic 兼容", "localCli": "本地 CLI", "none": "未配置运行时", "notConfigured": "AI 运行时未配置。请在设置中的 AI 配置里完成配置。" },
+    "role": { "user": "你", "assistant": "助手" },
+    "stop": "停止",
+    "clear": "清除",
+    "clearAll": "全部清除",
+    "liveMonitor": "实时",
+    "liveFilterPlaceholder": "过滤域名…",
+    "empty": { "prompt": "今天想排查什么问题？", "hint": "可以让我分析已附加的 HTTP 会话，解释失败原因、对比流量，或检查安全与性能问题。" },
+    "thought": "思考",
+    "thinking": "思考中",
+    "generating": "生成中",
+    "reasoning": { "summary": "经过 {{tools}} 次工具调用推理", "done": "已深度思考（用时 {{secs}} 秒）" },
+    "observation": "观察",
+    "toolResult": "工具结果",
+    "askAi": "问 AI",
+    "askAiToAnalyze": "让 AI 分析",
+    "preset": {
+      "requestFailure": "帮我分析这组请求为什么失败",
+      "securityRisk": "看看这个接口有没有安全风险",
+      "redirectChain": "帮我定位重定向链路问题",
+      "performanceSlow": "分析这次请求为什么这么慢",
+      "compareRequests": "对比两次请求差异",
+      "summarizeTraffic": "总结这组流量的关键问题",
+      "requestFailurePrompt": "帮我分析这组请求为什么失败。根据附加的 HTTP 会话，找出可能的原因并给出下一步排查建议。",
+      "securityRiskPrompt": "审查附加的 HTTP 会话中的安全风险。检查 Cookie、认证流程、CORS、CSP、Header 以及任何暴露的敏感数据。",
+      "redirectChainPrompt": "帮我追踪附加会话中的重定向或登录流程。说明链路中哪里发生了变化，可能的原因是什么。",
+      "performanceSlowPrompt": "分析这次请求流程为什么慢。查看时序、负载大小、缓存、压缩以及附加会话中的多余往返。",
+      "compareRequestsPrompt": "对比附加的 HTTP 请求和响应。指出关键差异，解释哪个可能导致了问题。",
+      "summarizeTrafficPrompt": "总结附加的 HTTP 流量。指出关键请求、可疑行为、失败点以及最需要优先排查的问题。"
+    },
+    "maxIterations": "已达最大推理迭代次数 ({{count}})，停止。",
+    "regenerate": "重新生成",
+    "agent": { "running": "思考中 ({{current}}/{{max}})…", "toolExecuting": "正在执行 {{name}}…", "cancelled": "Agent 已取消", "maxIterationsReached": "已达最大迭代次数 ({{count}})" },
+    "history": {
+      "title": "对话记录",
+      "newChat": "新对话",
+      "deleteConfirm": "确定删除这个对话？",
+      "deleteTitle": "删除对话",
+      "deleteDescription": "此操作无法撤销。该对话将被永久删除。",
+      "rename": "重命名",
+      "search": "搜索对话...",
+      "export": "导出为 Markdown",
+      "exportFailed": "导出对话失败",
+      "noConversations": "暂无对话记录",
+      "noConversationsHint": "开始对话后会自动保存在这里",
+      "justNow": "刚刚",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前",
+      "daysAgo": "{{count}}天前"
+    }
+  },
+  "runtime": {
+    "setDefault": "设为默认",
+    "delete": "删除",
+    "newName": "新运行时",
+    "add": "添加运行时",
+    "defaultBadge": "默认",
+    "selectPrompt": "选择一个运行时进行编辑",
+    "basic": "基本信息",
+    "name": "名称",
+    "type": "类型",
+    "connection": "连接",
+    "protocol": "协议",
+    "baseUrl": "Base URL",
+    "apiKey": "API Key",
+    "apiKeyOptional": "API Key (可选)",
+    "model": "模型",
+    "cliSection": "CLI 配置",
+    "cliPath": "可执行路径 (留空自动检测)",
+    "browse": "浏览…",
+    "status": { "ready": "就绪", "cliNotFound": "未找到 CLI 可执行文件", "keyRequired": "需要 API Key" },
+    "maxContextTokens": "最大上下文 Token 数",
+    "maxContextTokensHint": "上下文窗口的最大 Token 数。0 = 根据运行时类型自动检测。"
+  },
+  "cert": {
+    "title": "HTTPS 证书配置",
+    "description": "要检查 HTTPS 流量，需要生成并信任 CA 证书。代理将使用此 CA 为每个域名签发证书，从而解密 HTTPS 请求和响应。",
+    "step": { "generate": "生成 CA 证书", "trust": "在系统钥匙串中信任 CA", "restart": "重启捕获" },
+    "caReady": "CA 证书已就绪。",
+    "overview": {
+      "title": "HTTPS 就绪状态",
+      "description": "快速确认当前证书生成、系统信任和 HTTPS 拦截是否已准备好。",
+      "ca": "CA 证书",
+      "trust": "系统信任",
+      "capture": "HTTPS 抓取"
+    },
+    "status": {
+      "ready": "已就绪",
+      "notReady": "未就绪",
+      "generated": "已生成",
+      "missing": "未生成",
+      "trusted": "已信任",
+      "notTrusted": "未信任"
+    },
+    "cards": {
+      "authorityTitle": "证书颁发机构",
+      "authorityDescription": "生成本地根 CA，用于为被拦截的 HTTPS 流量动态签发证书。",
+      "authorityPending": "生成本地 CA 证书。",
+      "trustTitle": "系统信任",
+      "trustPending": "请先生成 CA 证书，再执行信任安装。"
+    },
+    "configuration": {
+      "title": "HTTPS 配置",
+      "description": "生成 CA、安装信任，必要时重启捕获。",
+      "statusLabel": "当前状态"
+    },
+    "notice": {
+      "title": "何时生效",
+      "readyRunning": "HTTPS 证书已就绪。请重启当前捕获，使新证书状态应用到本次代理会话。",
+      "readyStopped": "HTTPS 证书已就绪。下次启动捕获时会自动用于 HTTPS 拦截。",
+      "notReady": "在解密 HTTPS 流量之前，需要先生成并信任 CA 证书。"
+    },
+    "generateHint": "生成用于签发 HTTPS 证书的根 CA 证书。",
+    "generate": "生成",
+    "regenerate": "重新生成",
+    "trustHint": "在系统钥匙串中信任该 CA。",
+    "installAndTrust": "安装并信任",
+    "showInFinder": "在 Finder 中显示",
+    "restartHint": "停止并重启代理捕获以启用 HTTPS 拦截。",
+    "generateFailed": "生成 CA 失败: {{error}}",
+    "installFailed": "安装 CA 失败: {{error}}"
+  },
+  "cors": {
+    "override": "CORS 覆盖",
+    "overrideDescription": "向响应中注入 CORS 头，允许来自任意来源的跨域请求。适用于本地开发。"
+  },
+  "action": {
+    "clear": "清除",
+    "close": "关闭",
+    "pause": "暂停",
+    "replay": "重放",
+    "resume": "恢复",
+    "send": "发送",
+    "sendAi": "发送到 AI"
+  },
+  "context": {
+    "copyUrl": "复制 URL",
+    "copyCurl": "复制为 cURL",
+    "copyResponse": "复制响应",
+    "selectAll": "全选"
+  },
+  "settings": {
+    "title": "设置",
+    "tabs": {
+      "general": "通用",
+      "proxy": "代理",
+      "runtimes": "AI 配置",
+      "skills": "Skill",
+      "certificates": "证书"
+    },
+    "general": {
+      "title": "通用设置",
+      "description": "应用全局偏好设置"
+    },
+    "language": { "label": "语言", "system": "跟随系统", "english": "英文", "zhHans": "简体中文" },
+    "theme": {
+      "label": "主题",
+      "toggle": "切换主题",
+      "system": "系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "autoStartProxy": {
+      "label": "自动启动代理",
+      "description": "启动应用时自动开始代理"
+    },
+    "maxSessions": {
+      "label": "最大会话数",
+      "description": "内存中保留的最大捕获会话数 (0 = 不限制)"
+    },
+    "proxy": {
+      "title": "代理配置",
+      "description": "配置监听地址和上游代理",
+      "runningWarning": "请先停止代理再修改配置"
+    },
+    "runtimes": {
+      "title": "AI 配置",
+      "description": "配置 AI 工作区使用的本地和远程运行时。"
+    },
+    "skills": {
+      "title": "Skill",
+      "description": "Skill"
+    }
+  },
+  "update": {
+    "about": "关于",
+    "currentVersion": "当前版本",
+    "checkForUpdates": "检查更新",
+    "checking": "检查中…",
+    "available": "Sniflo {{version}} 可用",
+    "clickToView": "点击查看版本详情",
+    "viewRelease": "查看版本",
+    "upToDate": "已是最新版本",
+    "releaseNotes": "更新日志",
+    "checkFailed": "检查更新失败"
+  },
+  "common": {
+    "cancel": "取消",
+    "delete": "删除"
+  }
+}

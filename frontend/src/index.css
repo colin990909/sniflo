@@ -1,0 +1,488 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  [data-theme="light"] {
+    color-scheme: light;
+
+    --background: 30 28% 96%;
+    --foreground: 24 22% 16%;
+
+    --card: 34 33% 99%;
+    --card-foreground: 24 22% 16%;
+
+    --popover: 34 33% 99%;
+    --popover-foreground: 24 22% 16%;
+
+    --primary: 26 60% 45%;
+    --primary-foreground: 36 45% 98%;
+
+    --secondary: 30 32% 88%;
+    --secondary-foreground: 24 22% 22%;
+
+    --muted: 28 24% 91%;
+    --muted-foreground: 24 12% 41%;
+
+    --accent: 30 42% 90%;
+    --accent-foreground: 24 24% 20%;
+
+    --destructive: 4 72% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 28 22% 83%;
+    --input: 28 22% 83%;
+    --ring: 29 68% 58%;
+
+    --sidebar: 34 30% 98%;
+    --sidebar-foreground: 24 22% 18%;
+    --sidebar-border: 30 22% 86%;
+    --sidebar-accent: 26 60% 45%;
+
+    --brand-primary: 26 60% 45%;
+    --brand-secondary: 29 68% 58%;
+
+    --session: 204 72% 46%;
+    --breakpoint: 31 78% 47%;
+    --script: 154 52% 36%;
+    --ai: 26 60% 45%;
+    --export: 148 42% 41%;
+    --cert: 11 70% 52%;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+
+    --panel-shadow: 0 12px 30px hsl(24 28% 44% / 0.12);
+    --panel-shadow-strong: 0 16px 40px hsl(24 32% 34% / 0.16);
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    --background: 24 17% 9%;
+    --foreground: 34 28% 94%;
+
+    --card: 24 16% 13%;
+    --card-foreground: 34 28% 94%;
+
+    --popover: 24 16% 15%;
+    --popover-foreground: 34 28% 94%;
+
+    --primary: 26 60% 45%;
+    --primary-foreground: 36 45% 98%;
+
+    --secondary: 24 16% 22%;
+    --secondary-foreground: 34 28% 94%;
+
+    --muted: 24 14% 18%;
+    --muted-foreground: 26 10% 63%;
+
+    --accent: 24 14% 20%;
+    --accent-foreground: 34 28% 94%;
+
+    --destructive: 4 68% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 24 12% 24%;
+    --input: 24 12% 24%;
+    --ring: 29 68% 58%;
+
+    --sidebar: 24 18% 11%;
+    --sidebar-foreground: 34 28% 94%;
+    --sidebar-border: 24 10% 18%;
+    --sidebar-accent: 26 60% 45%;
+
+    --brand-primary: 26 60% 45%;
+    --brand-secondary: 29 68% 58%;
+
+    --session: 204 70% 58%;
+    --breakpoint: 31 78% 55%;
+    --script: 154 45% 49%;
+    --ai: 29 68% 58%;
+    --export: 148 45% 50%;
+    --cert: 11 74% 60%;
+
+    --panel-shadow: 0 18px 40px hsl(20 35% 4% / 0.35);
+    --panel-shadow-strong: 0 24px 64px hsl(20 40% 4% / 0.48);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(circle at top, hsl(var(--primary) / 0.05), transparent 34%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TAURI DRAG REGION
+   ═══════════════════════════════════════════════════════════════ */
+
+[data-tauri-drag-region] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+[data-tauri-drag-region] button,
+[data-tauri-drag-region] a,
+[data-tauri-drag-region] input,
+[data-tauri-drag-region] select,
+[data-tauri-drag-region] textarea,
+[data-tauri-drag-region] [role="button"] {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Legacy — being replaced by shadcn Input */
+.input-field {
+  @apply w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm transition-colors focus:border-ring/50 focus:outline-none focus:ring-1 focus:ring-ring/20;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR — thin, subtle, disappears when not scrolling
+   ═══════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.32);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SURFACE SYSTEM — Layered depth classes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Sidebar: darkest layer with subtle vertical gradient + inner glow */
+.sidebar-surface {
+  background:
+    linear-gradient(
+      180deg,
+      hsl(var(--sidebar)) 0%,
+      hsl(var(--sidebar) / 0.98) 45%,
+      hsl(var(--sidebar) / 0.94) 100%
+    );
+  border-right: 1px solid hsl(var(--sidebar-border));
+  box-shadow: inset -1px 0 0 hsl(var(--sidebar-border) / 0.45);
+}
+
+/* Main content area: radial ambient light from top-center */
+.content-ambient {
+  background:
+    radial-gradient(ellipse 70% 40% at 50% -5%, hsl(var(--primary) / 0.12) 0%, transparent 70%),
+    hsl(var(--background));
+}
+
+/* Hero card: premium frosted glass with depth shadow */
+.hero-card {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      160deg,
+      hsl(var(--card) / 0.98) 0%,
+      hsl(var(--card) / 0.9) 100%
+    );
+  border: 1px solid hsl(var(--border) / 0.75);
+  box-shadow:
+    0 0 0 1px hsl(var(--border) / 0.22),
+    var(--panel-shadow-strong);
+}
+
+.hero-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, hsl(var(--brand-secondary) / 0.1) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* Stat cards: glass surface with hover lift */
+.glass-card {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      160deg,
+      hsl(var(--card) / 0.94) 0%,
+      hsl(var(--card) / 0.82) 100%
+    );
+  border: 1px solid hsl(var(--border) / 0.7);
+  box-shadow: var(--panel-shadow);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: hsl(var(--primary) / 0.3);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.1),
+    var(--panel-shadow-strong);
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, hsl(0 0% 100% / 0.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOOLBAR — frosted glass toolbar
+   ═══════════════════════════════════════════════════════════════ */
+
+.toolbar-surface {
+  background: hsl(var(--background) / 0.86);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid hsl(var(--border) / 0.85);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLE — alternating rows, selection, hover
+   ═══════════════════════════════════════════════════════════════ */
+
+.table-header {
+  background: hsl(var(--muted) / 0.55);
+  border-bottom: 1px solid hsl(var(--border) / 0.8);
+}
+
+.table-row-even {
+  background: transparent;
+}
+
+.table-row-odd {
+  background: hsl(var(--muted) / 0.22);
+}
+
+.table-row-hover:hover {
+  background: hsl(var(--primary) / 0.05);
+}
+
+.table-row-selected {
+  background: hsl(var(--primary) / 0.08) !important;
+}
+
+.table-row-anchor {
+  background: hsl(var(--primary) / 0.13) !important;
+  box-shadow: inset 2px 0 0 hsl(var(--primary) / 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DETAIL PANEL — tab underline + content area
+   ═══════════════════════════════════════════════════════════════ */
+
+.detail-tab {
+  position: relative;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.15s;
+}
+
+.detail-tab:hover {
+  color: hsl(var(--foreground) / 0.82);
+}
+
+.detail-tab[data-active="true"] {
+  color: hsl(var(--foreground));
+}
+
+.detail-tab[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: hsl(var(--primary));
+  border-radius: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESIZE DIVIDER — short, quiet handle
+   ═══════════════════════════════════════════════════════════════ */
+
+.resize-divider {
+  position: relative;
+  background: transparent;
+}
+
+.resize-divider-short-handle::after {
+  content: "";
+  position: absolute;
+  background: hsl(var(--border) / 0.16);
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 999px;
+}
+
+.resize-divider-short-handle.resize-divider-h::after {
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+}
+
+.resize-divider-short-handle.resize-divider-v::after {
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 4px;
+  transform: translate(-50%, -50%);
+}
+
+.resize-divider-short-handle:hover::after {
+  opacity: 1;
+  background: hsl(var(--border) / 0.34);
+}
+
+.resize-divider-short-handle:active::after,
+.resize-divider-short-handle.resize-divider-dragging::after {
+  opacity: 1;
+  background: hsl(var(--primary) / 0.26);
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CODE / PRE — monospace blocks
+   ═══════════════════════════════════════════════════════════════ */
+
+.code-block {
+  background: hsl(var(--muted) / 0.38);
+  border: 1px solid hsl(var(--border) / 0.7);
+  border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONVERSATION SIDEBAR — AI history
+   ═══════════════════════════════════════════════════════════════ */
+
+.conv-sidebar {
+  background:
+    linear-gradient(
+      180deg,
+      hsl(var(--sidebar)) 0%,
+      hsl(var(--sidebar) / 0.96) 100%
+    );
+  border-right: 1px solid hsl(var(--sidebar-border));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS — micro-interactions
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px hsl(160 72% 46% / 0.15); }
+  50% { box-shadow: 0 0 16px hsl(160 72% 46% / 0.25); }
+}
+
+.glow-running {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.06) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: subtle-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes ai-streaming-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-streaming-block {
+  animation: ai-streaming-fade-in 240ms ease-out;
+  will-change: opacity, transform;
+}
+
+@keyframes ai-pulse-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.stack-tight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stack-base {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.section-pad {
+  padding-inline: var(--space-4);
+  padding-block: var(--space-5);
+}
+
+.inline-pad {
+  padding-inline: var(--space-4);
+}
+
+.field-gap {
+  gap: var(--space-2);
+}
+
+.workspace-icon {
+  display: flex;
+  height: 40px;
+  width: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}

@@ -1,0 +1,390 @@
+{
+  "app": { "title": "Sniflo" },
+  "sidebar": {
+    "workspace": "Workspace",
+    "home": "Home",
+    "sessions": "Sessions",
+    "breakpoints": "Breakpoints",
+    "ai": "AI",
+    "scripts": "Scripts",
+    "configuration": "Configuration",
+    "proxyStatus": "Proxy Status",
+    "status": {
+      "starting": "Starting",
+      "running": "Running",
+      "stopped": "Stopped",
+      "failed": "Failed"
+    },
+    "settings": "Settings",
+    "aiRuntimes": "AI Runtimes",
+    "certificates": "Certificates"
+  },
+  "home": {
+    "tagline": "Start from a real workflow instead of digging through placeholders.",
+    "dashboard": "Dashboard",
+    "controlCenter": "Control Center",
+    "quickActions": "Quick Actions",
+    "trafficSnapshot": "Traffic Snapshot",
+    "snapshotWindow": "Last {{seconds}}s",
+    "snapshotEmpty": "Start the proxy to see live traffic",
+    "systemReadiness": "System Readiness",
+    "recentActivity": "Recent Activity",
+    "inspect": { "title": "Inspect Sessions", "subtitle": "Open captured HTTP and HTTPS traffic" },
+    "breakpoints": { "title": "Debug Breakpoints", "subtitle": "Pause, inspect, and resume intercepted traffic" },
+    "ai": { "title": "AI Workspace", "subtitle": "Attach sessions and analyze requests with AI" },
+    "certificates": { "title": "Install Certificates", "subtitle": "Prepare HTTPS MITM and trust setup" },
+    "stats": {
+      "sessions": "Captured",
+      "sessionsUnit": "sessions",
+      "rules": "{{count}} rules",
+      "pending": "{{count}} pending",
+      "noRules": "No rules",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "ready": "Ready",
+      "notConfigured": "Not configured",
+      "caInstalled": "CA trusted",
+      "caGenerated": "CA generated",
+      "caNotSetup": "Not set up",
+      "configure": "Configure",
+      "upstream": "Upstream",
+      "off": "Off"
+    }
+  },
+  "capture": {
+    "title": "Capture Requests",
+    "description": "Start a local HTTP proxy, then point your client or system proxy settings at it.",
+    "listenHost": "Listen Host",
+    "listenPort": "Listen Port",
+    "start": "Start Proxy",
+    "starting": "Starting…",
+    "stop": "Stop Proxy",
+    "proxyAddress": "Proxy Address",
+    "howToUse": "How to intercept",
+    "status": {
+      "starting": "Starting proxy…",
+      "running": "Proxy listening on {{address}}",
+      "stopped": "Proxy is stopped",
+      "failed": "Proxy failed to start"
+    },
+    "configureClient": "Configure the client or system HTTP proxy to {{address}}. New HTTP requests will appear in Sessions.",
+    "upstream": {
+      "title": "Upstream Proxy",
+      "enabled": "Enable Upstream Proxy",
+      "host": "Upstream Host",
+      "port": "Upstream Port",
+      "description": "Forward captured traffic through an upstream proxy (e.g. Clash at 127.0.0.1:7890)."
+    }
+  },
+  "sessions": {
+    "captured": { "title": "Captured Sessions" },
+    "search": { "placeholder": "Search host" },
+    "select": { "prompt": "Select a captured session" },
+    "noCaptures": "No captured sessions",
+    "noCapturesHint": "Start the proxy and make HTTP requests to see them listed here.",
+    "noResults": "No matching requests",
+    "clearAll": "Clear all sessions",
+    "selected": "{{count}} selected",
+    "table": { "name": "Name", "status": "Status", "method": "Method", "host": "Host", "type": "Type" }
+  },
+  "detail": {
+    "request": "Request",
+    "response": "Response",
+    "headers": "Headers",
+    "body": "Body",
+    "preview": "Preview",
+    "selectSession": "Select a session",
+    "copyUrl": "Copy URL",
+    "copy": "Copy",
+    "curlCommand": "cURL Command",
+    "noRequestBody": "No request body",
+    "emptyResponse": "Empty response",
+    "binaryData": "{{size}} binary data",
+    "formatted": "Formatted",
+    "noPreview": "No preview available",
+    "general": "General",
+    "payload": "Payload",
+    "requestHeaders": "Request Headers",
+    "responseHeaders": "Response Headers",
+    "queryParams": "Query String Parameters",
+    "eventstream": "EventStream"
+  },
+  "breakpoint": {
+    "title": "Breakpoint",
+    "forward": "Forward",
+    "drop": "Drop",
+    "enabled": "Breakpoint is enabled",
+    "waiting": "Waiting for next HTTP request…",
+    "requestPhase": "Request Breakpoint",
+    "responsePhase": "Response Breakpoint",
+    "method": "Method",
+    "requestHeaders": "Request Headers",
+    "requestBody": "Request Body",
+    "statusCode": "Status Code",
+    "responseHeaders": "Response Headers",
+    "responseBody": "Response Body",
+    "headerKey": "Key",
+    "headerValue": "Value",
+    "newKey": "New key",
+    "newValue": "New value",
+    "rulesDescription": "Define rules to pause matching HTTP requests for inspection and editing.",
+    "addRule": "Add Rule",
+    "noRules": "No breakpoint rules",
+    "noRulesHint": "Add a rule to pause HTTP requests matching a host, path, or method for inspection and editing.",
+    "anyHost": "Any host",
+    "phase": { "request": "Request phase", "response": "Response phase", "both": "Both phases" },
+    "enableToggle": "Enable",
+    "pendingCount": "{{count}} pending",
+    "host": "Host",
+    "path": "Path",
+    "anyMethod": "Any",
+    "deleteRule": "Delete rule",
+    "addHeader": "Add header",
+    "deleteHeader": "Delete header",
+    "disabledWarning": "Breakpoints are globally disabled — toggle the switch above to activate"
+  },
+  "script": {
+    "title": "Scripts",
+    "active": "Active",
+    "enableToggle": "Enable",
+    "addScript": "New Script",
+    "newName": "New Script",
+    "noScripts": "No scripts",
+    "noScriptsHint": "Create scripts to automatically modify HTTP requests and responses as they pass through the proxy.",
+    "selectScript": "Select a script to edit",
+    "deleteScript": "Delete script",
+    "name": "Name",
+    "urlPattern": "URL Pattern",
+    "test": "Test",
+    "save": "Save",
+    "executionLog": "Execution Log",
+    "noLogs": "No execution logs yet",
+    "disabledWarning": "Scripts are globally disabled — toggle the switch above to activate",
+    "phase": {
+      "request": "Request",
+      "response": "Response",
+      "both": "Both"
+    }
+  },
+  "ai": {
+    "transcript": { "title": "AI Transcript", "empty": "Conversation history will appear here." },
+    "tool": { "title": "Tool Output", "empty": "Tool invocation results will appear here.", "attachedList": "Attached sessions: {{list}}", "input": "Input", "output": "Output", "error": "Error", "expand": "Expand", "collapse": "Collapse" },
+    "skill": { "label": "Skill", "apiDebug": "API Debugging Analyst", "security": "Security Review Assistant", "packet": "Packet Troubleshooting Assistant", "rewrite": "Mock/Rewrite Generator", "manager": "Skills", "install": "Install", "uninstall": "Uninstall", "installed": "Installed", "noSkills": "No skills installed", "noSkillsHint": "Install skill packages to extend agent capabilities", "installFrom": "Install from directory…", "tools": "{{count}} tools" },
+    "attached": { "count": "Attached sessions: {{count}}" },
+    "error": {
+      "modelLoadFailed": "Failed to load model list",
+      "sendFailed": "Failed to send message",
+      "loadConversationsFailed": "Failed to load conversations",
+      "loadSkillsFailed": "Failed to load skills",
+      "installSkillFailed": "Failed to install skill"
+    },
+    "message": {
+      "copy": "Copy message",
+      "edit": "Edit message"
+    },
+    "code": {
+      "copy": "Copy code"
+    },
+    "scrollToBottom": "Scroll to bottom",
+    "composer": { "placeholder": "Describe the HTTP issue you want to investigate", "mentionTitle": "Requests" },
+    "runtime": { "section": "Runtime", "openai": "OpenAI-compatible", "anthropic": "Anthropic-compatible", "localCli": "Local CLI", "none": "No runtime configured", "notConfigured": "AI runtime not configured. Configure it in AI Configuration." },
+    "role": { "user": "You", "assistant": "Assistant" },
+    "stop": "Stop",
+    "clear": "Clear",
+    "clearAll": "Clear all",
+    "liveMonitor": "Live",
+    "liveFilterPlaceholder": "Filter domain…",
+    "empty": { "prompt": "What would you like to investigate today?", "hint": "Ask me to analyze attached HTTP sessions, explain failures, compare traffic, or spot security and performance issues." },
+    "thought": "Thought",
+    "thinking": "Thinking",
+    "generating": "Generating",
+    "reasoning": { "summary": "Reasoned with {{tools}} tool calls", "done": "Thought for {{secs}}s" },
+    "observation": "Observation",
+    "toolResult": "Tool Result",
+    "askAi": "Ask AI",
+    "askAiToAnalyze": "Ask AI to Analyze",
+    "preset": {
+      "requestFailure": "Why is this request failing?",
+      "securityRisk": "Does this endpoint have security risks?",
+      "redirectChain": "Help me trace the redirect chain",
+      "performanceSlow": "Why is this request so slow?",
+      "compareRequests": "Compare these two requests",
+      "summarizeTraffic": "Summarize the key issues in this traffic",
+      "requestFailurePrompt": "Help me analyze why this request or response is failing. Identify likely causes from the attached HTTP sessions and suggest the next debugging steps.",
+      "securityRiskPrompt": "Review the attached HTTP sessions for security risks. Check cookies, authentication flow, CORS, CSP, headers, and any exposed sensitive data.",
+      "redirectChainPrompt": "Help me trace the redirect or login flow in these attached sessions. Explain where the chain changes and what might be causing the problem.",
+      "performanceSlowPrompt": "Analyze why this request flow is slow. Look at timing, payload size, caching, compression, and any unnecessary round trips in the attached sessions.",
+      "compareRequestsPrompt": "Compare the attached HTTP requests and responses. Highlight the important differences and explain which one is likely causing the issue.",
+      "summarizeTrafficPrompt": "Summarize the attached HTTP traffic. Point out the key requests, suspicious behavior, failures, and the most important problems to investigate next."
+    },
+    "maxIterations": "Reached maximum reasoning iterations ({{count}}). Stopping.",
+    "regenerate": "Regenerate",
+    "agent": { "running": "Thinking ({{current}}/{{max}})…", "toolExecuting": "Executing {{name}}…", "cancelled": "Agent cancelled", "maxIterationsReached": "Reached max iterations ({{count}})" },
+    "history": {
+      "title": "Conversations",
+      "newChat": "New Chat",
+      "deleteConfirm": "Delete this conversation?",
+      "deleteTitle": "Delete conversation",
+      "deleteDescription": "This action cannot be undone. This conversation will be permanently deleted.",
+      "rename": "Rename",
+      "search": "Search conversations...",
+      "export": "Export as Markdown",
+      "exportFailed": "Failed to export conversation",
+      "noConversations": "No conversations yet",
+      "noConversationsHint": "Start a conversation and it will be saved here",
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    }
+  },
+  "runtime": {
+    "setDefault": "Set as Default",
+    "delete": "Delete",
+    "newName": "New Runtime",
+    "add": "Add Runtime",
+    "defaultBadge": "Default",
+    "selectPrompt": "Select a runtime to edit",
+    "basic": "Basic",
+    "name": "Name",
+    "type": "Type",
+    "connection": "Connection",
+    "protocol": "Protocol",
+    "baseUrl": "Base URL",
+    "apiKey": "API Key",
+    "apiKeyOptional": "API Key (optional)",
+    "model": "Model",
+    "cliSection": "CLI Configuration",
+    "cliPath": "Executable path (auto-detected if empty)",
+    "browse": "Browse…",
+    "status": { "ready": "Ready", "cliNotFound": "CLI executable not found", "keyRequired": "API key required" },
+    "maxContextTokens": "Max Context Tokens",
+    "maxContextTokensHint": "Maximum context window size in tokens. 0 = auto-detect based on runtime type."
+  },
+  "cert": {
+    "title": "HTTPS Certificate Setup",
+    "description": "To inspect HTTPS traffic, a CA certificate must be generated and trusted by the system. The proxy will use this CA to sign certificates for each domain, enabling decryption of HTTPS requests and responses.",
+    "step": { "generate": "Generate CA Certificate", "trust": "Trust CA in System Keychain", "restart": "Restart Capture" },
+    "caReady": "CA certificate is ready.",
+    "overview": {
+      "title": "HTTPS Readiness",
+      "description": "Check whether certificate generation, system trust, and HTTPS interception are ready.",
+      "ca": "CA certificate",
+      "trust": "System trust",
+      "capture": "HTTPS capture"
+    },
+    "status": {
+      "ready": "Ready",
+      "notReady": "Not ready",
+      "generated": "Generated",
+      "missing": "Missing",
+      "trusted": "Trusted",
+      "notTrusted": "Not trusted"
+    },
+    "cards": {
+      "authorityTitle": "Certificate authority",
+      "authorityDescription": "Generate the local root CA used to sign intercepted HTTPS traffic.",
+      "authorityPending": "Generate the local CA certificate.",
+      "trustTitle": "System trust",
+      "trustPending": "Generate a CA certificate before installing trust."
+    },
+    "configuration": {
+      "title": "HTTPS Configuration",
+      "description": "Generate the CA, trust it, then restart capture if needed.",
+      "statusLabel": "Current status"
+    },
+    "notice": {
+      "title": "When this takes effect",
+      "readyRunning": "HTTPS certificates are ready. Restart capture to apply them to the current proxy session.",
+      "readyStopped": "HTTPS certificates are ready. They will be used the next time capture starts.",
+      "notReady": "Generate and trust the CA certificate before HTTPS traffic can be decrypted."
+    },
+    "generateHint": "Generate a root CA certificate for signing HTTPS certificates.",
+    "generate": "Generate",
+    "regenerate": "Regenerate",
+    "trustHint": "Trust the CA in your system keychain.",
+    "installAndTrust": "Install & Trust",
+    "showInFinder": "Show in Finder",
+    "restartHint": "Stop and restart the proxy capture to enable HTTPS interception.",
+    "generateFailed": "Failed to generate CA: {{error}}",
+    "installFailed": "Failed to install CA: {{error}}"
+  },
+  "cors": {
+    "override": "CORS Override",
+    "overrideDescription": "Inject CORS headers into responses, allowing cross-origin requests from any origin. Useful for local development."
+  },
+  "action": {
+    "clear": "Clear",
+    "close": "Close",
+    "pause": "Pause",
+    "replay": "Replay",
+    "resume": "Resume",
+    "send": "Send",
+    "sendAi": "Send to AI"
+  },
+  "context": {
+    "copyUrl": "Copy URL",
+    "copyCurl": "Copy as cURL",
+    "copyResponse": "Copy Response",
+    "selectAll": "Select All"
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "proxy": "Proxy",
+      "runtimes": "AI Configuration",
+      "skills": "AI Skills",
+      "certificates": "Certificates"
+    },
+    "general": {
+      "title": "General",
+      "description": "Application-wide preferences"
+    },
+    "language": { "label": "Language", "system": "Follow System", "english": "English", "zhHans": "Simplified Chinese" },
+    "theme": {
+      "label": "Theme",
+      "toggle": "Switch theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "autoStartProxy": {
+      "label": "Auto-start Proxy",
+      "description": "Automatically start the proxy when the app launches"
+    },
+    "maxSessions": {
+      "label": "Max Sessions",
+      "description": "Maximum number of captured sessions to keep in memory (0 = unlimited)"
+    },
+    "proxy": {
+      "title": "Proxy Configuration",
+      "description": "Configure the listening address and upstream proxy",
+      "runningWarning": "Stop the proxy to modify these settings"
+    },
+    "runtimes": {
+      "title": "AI Configuration",
+      "description": "Configure the local and remote runtimes used by the AI workspace."
+    },
+    "skills": {
+      "title": "AI Skills",
+      "description": "Manage installed skills available to the AI workspace."
+    }
+  },
+  "update": {
+    "about": "About",
+    "currentVersion": "Current Version",
+    "checkForUpdates": "Check for Updates",
+    "checking": "Checking…",
+    "available": "Sniflo {{version}} is available",
+    "clickToView": "Click to view the release details",
+    "viewRelease": "View Release",
+    "upToDate": "You're up to date",
+    "releaseNotes": "Release Notes",
+    "checkFailed": "Failed to check for updates"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete"
+  }
+}
