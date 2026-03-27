@@ -12,7 +12,7 @@ node_modules/
 dist/
 frontend/dist/
 .tmp/
-docs/
+docs/plans/
 # AI assistant config
 CLAUDE.md
 AGENTS.md
