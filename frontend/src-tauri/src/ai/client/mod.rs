@@ -12,6 +12,99 @@ use tokio::sync::mpsc;
 
 use super::types::{AIClientError, AssistantResponse, Message, StreamChunk, ToolDefinition};
 
+// ---------------------------------------------------------------------------
+// Text-based tool-call protocol (used by local CLI runtimes)
+// ---------------------------------------------------------------------------
+
+/// A tool call parsed out of a local CLI text response.
+pub struct ParsedToolCall {
+    pub id: String,
+    pub name: String,
+    pub input: serde_json::Value,
+}
+
+/// Build the tool-call instruction block to inject into CLI prompts.
+/// Returns an empty string when `tools` is empty.
+pub fn build_tool_prompt_section(tools: &[ToolDefinition]) -> String {
+    if tools.is_empty() {
+        return String::new();
+    }
+
+    let mut section = String::from(
+        "Available tools — call any by outputting a <tool_call> block:\n",
+    );
+    for tool in tools {
+        section.push_str(&format!(
+            "[{}] {}\n  Input schema: {}\n",
+            tool.name,
+            tool.description,
+            tool.input_schema,
+        ));
+    }
+    section.push_str(
+        "\nTool call format (one per block, at the end of your reply):\n\
+         <tool_call>{\"name\":\"TOOL_NAME\",\"id\":\"tc_1\",\"input\":{...}}</tool_call>\n\
+         Rules:\n\
+         - Output reasoning/explanation first, then all tool call(s) at the very end.\n\
+         - Assign a unique \"id\" to each call (tc_1, tc_2, …).\n\
+         - Do NOT fabricate tool results — results will be provided in the next message.\n\n",
+    );
+    section
+}
+
+/// Parse `<tool_call>…</tool_call>` blocks from a CLI text response.
+/// Returns `(text_with_blocks_removed, parsed_calls)`.
+/// Invalid JSON blocks are silently dropped (treated as plain text removal).
+pub fn parse_tool_calls(text: &str) -> (String, Vec<ParsedToolCall>) {
+    let mut parsed: Vec<ParsedToolCall> = Vec::new();
+    let mut cleaned = String::new();
+    let mut remaining = text;
+    let mut counter: u32 = 0;
+
+    while let Some(open) = remaining.find("<tool_call>") {
+        cleaned.push_str(&remaining[..open]);
+        remaining = &remaining[open + "<tool_call>".len()..];
+
+        let close = match remaining.find("</tool_call>") {
+            Some(pos) => pos,
+            None => {
+                // Malformed — keep the rest as text
+                cleaned.push_str(remaining);
+                remaining = "";
+                break;
+            }
+        };
+
+        let json_str = remaining[..close].trim();
+        remaining = &remaining[close + "</tool_call>".len()..];
+
+        if let Ok(value) = serde_json::from_str::<serde_json::Value>(json_str) {
+            let name = value
+                .get("name")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
+            if name.is_empty() {
+                continue;
+            }
+            counter += 1;
+            let id = value
+                .get("id")
+                .and_then(Value::as_str)
+                .map(ToString::to_string)
+                .unwrap_or_else(|| format!("tc_{counter}"));
+            let input = value
+                .get("input")
+                .cloned()
+                .unwrap_or(serde_json::Value::Object(Default::default()));
+            parsed.push(ParsedToolCall { id, name, input });
+        }
+    }
+
+    cleaned.push_str(remaining);
+    (cleaned, parsed)
+}
+
 /// Trait abstracting remote AI runtimes. All implementations convert to/from
 /// the Anthropic content block format internally.
 #[async_trait]
@@ -410,5 +503,71 @@ mod tests {
             Some("Claude Sonnet 4")
         );
         assert!(!page.has_more);
+    }
+
+    #[test]
+    fn parse_tool_calls_extracts_single_call() {
+        let text = "Sure, let me list sessions.\n<tool_call>{\"name\":\"list_sessions\",\"id\":\"tc_1\",\"input\":{\"limit\":10}}</tool_call>";
+        let (cleaned, calls) = parse_tool_calls(text);
+        assert_eq!(calls.len(), 1);
+        assert_eq!(calls[0].name, "list_sessions");
+        assert_eq!(calls[0].id, "tc_1");
+        assert_eq!(calls[0].input["limit"], 10);
+        assert!(cleaned.contains("Sure, let me list sessions."));
+        assert!(!cleaned.contains("<tool_call>"));
+    }
+
+    #[test]
+    fn parse_tool_calls_extracts_multiple_calls() {
+        let text = "Calling two tools.\n\
+                    <tool_call>{\"name\":\"list_sessions\",\"id\":\"tc_1\",\"input\":{}}</tool_call>\n\
+                    <tool_call>{\"name\":\"get_proxy_status\",\"id\":\"tc_2\",\"input\":{}}</tool_call>";
+        let (_, calls) = parse_tool_calls(text);
+        assert_eq!(calls.len(), 2);
+        assert_eq!(calls[0].name, "list_sessions");
+        assert_eq!(calls[1].name, "get_proxy_status");
+    }
+
+    #[test]
+    fn parse_tool_calls_generates_id_when_missing() {
+        let text = "<tool_call>{\"name\":\"list_sessions\",\"input\":{}}</tool_call>";
+        let (_, calls) = parse_tool_calls(text);
+        assert_eq!(calls.len(), 1);
+        assert_eq!(calls[0].id, "tc_1");
+    }
+
+    #[test]
+    fn parse_tool_calls_returns_empty_on_no_blocks() {
+        let text = "Here is my analysis without any tool calls.";
+        let (cleaned, calls) = parse_tool_calls(text);
+        assert!(calls.is_empty());
+        assert_eq!(cleaned, text);
+    }
+
+    #[test]
+    fn parse_tool_calls_skips_invalid_json_blocks() {
+        let text = "<tool_call>not json</tool_call>Some text.";
+        let (cleaned, calls) = parse_tool_calls(text);
+        assert!(calls.is_empty());
+        assert!(cleaned.contains("Some text."));
+    }
+
+    #[test]
+    fn build_tool_prompt_section_empty_when_no_tools() {
+        let section = build_tool_prompt_section(&[]);
+        assert!(section.is_empty());
+    }
+
+    #[test]
+    fn build_tool_prompt_section_includes_tool_names() {
+        let tools = vec![ToolDefinition {
+            name: "list_sessions".to_string(),
+            description: "List HTTP sessions".to_string(),
+            input_schema: serde_json::json!({"type": "object"}),
+        }];
+        let section = build_tool_prompt_section(&tools);
+        assert!(section.contains("list_sessions"));
+        assert!(section.contains("List HTTP sessions"));
+        assert!(section.contains("<tool_call>"));
     }
 }

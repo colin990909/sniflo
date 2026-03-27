@@ -186,7 +186,7 @@
       "copy": "Copy code"
     },
     "scrollToBottom": "Scroll to bottom",
-    "composer": { "placeholder": "Describe the HTTP issue you want to investigate", "mentionTitle": "Requests" },
+    "composer": { "placeholder": "Describe the HTTP issue you want to investigate", "mentionTitle": "Requests", "mentionEmpty": "No matching requests" },
     "runtime": { "section": "Runtime", "openai": "OpenAI-compatible", "anthropic": "Anthropic-compatible", "localCli": "Local CLI", "none": "No runtime configured", "notConfigured": "AI runtime not configured. Configure it in AI Configuration." },
     "role": { "user": "You", "assistant": "Assistant" },
     "stop": "Stop",

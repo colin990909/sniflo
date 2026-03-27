@@ -9,6 +9,7 @@ DerivedData/
 *.swp
 *.tmp
 node_modules/
+dist/
 frontend/dist/
 .tmp/
 docs/

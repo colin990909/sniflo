@@ -8,17 +8,6 @@ function getMentionSearchText(session: SessionItem): string {
   return [session.host, session.title, session.detail?.url ?? ""].join(" ").toLowerCase();
 }
 
-function getSessionMeta(session: SessionItem): string {
-  if (session.detail?.url) {
-    try {
-      const url = new URL(session.detail.url);
-      return url.pathname + url.search;
-    } catch {
-      return session.detail.url;
-    }
-  }
-  return session.title;
-}
 
 /** Zero-width space used as a caret landing pad next to chips. */
 const ZWS = "\u200B";
@@ -133,6 +122,24 @@ function getMentionMatch(root: HTMLElement): { query: string; range: Range } | n
   return { query: m[2], range };
 }
 
+function getMethodStyle(method: string): string {
+  switch (method.toUpperCase()) {
+    case "GET":    return "bg-blue-500/10 text-blue-400";
+    case "POST":   return "bg-green-500/10 text-green-400";
+    case "PUT":    return "bg-orange-500/10 text-orange-400";
+    case "PATCH":  return "bg-purple-500/10 text-purple-400";
+    case "DELETE": return "bg-red-500/10 text-red-400";
+    default:       return "bg-muted/40 text-muted-foreground";
+  }
+}
+
+function getStatusStyle(code: number): string {
+  if (code < 300) return "text-green-500";
+  if (code < 400) return "text-yellow-500";
+  if (code < 500) return "text-orange-500";
+  return "text-red-500";
+}
+
 /* ─── Composer Editor ─────────────────────────────────────────── */
 
 export function ComposerEditor({
@@ -159,6 +166,7 @@ export function ComposerEditor({
   const { t } = useTranslation();
   const editorRef = useRef<HTMLDivElement>(null);
   const mentionRangeRef = useRef<Range | null>(null);
+  const mentionListRef = useRef<HTMLDivElement>(null);
   const isSyncingRef = useRef(false);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [activeMentionIndex, setActiveMentionIndex] = useState(0);
@@ -182,6 +190,14 @@ export function ComposerEditor({
   useEffect(() => {
     if (activeMentionIndex >= mentionCandidates.length) setActiveMentionIndex(0);
   }, [activeMentionIndex, mentionCandidates.length]);
+
+  // Scroll active mention item into view when navigating with keyboard
+  useEffect(() => {
+    const list = mentionListRef.current;
+    if (!list) return;
+    const activeEl = list.children[activeMentionIndex] as HTMLElement | undefined;
+    activeEl?.scrollIntoView({ block: "nearest" });
+  }, [activeMentionIndex]);
 
   const isEmpty = !draft.trim() && editorTokenIds.length === 0;
 
@@ -349,7 +365,7 @@ export function ComposerEditor({
         role="textbox"
         aria-multiline="true"
         data-placeholder={placeholder}
-        className={`relative min-h-[44px] max-h-[min(240px,40vh)] overflow-y-auto w-full whitespace-pre-wrap break-words px-4 pt-2.5 pb-2.5 text-sm leading-6 text-foreground focus:outline-none ${disabled ? "cursor-not-allowed opacity-50" : ""} ${isEmpty ? "before:pointer-events-none before:absolute before:left-4 before:top-2.5 before:text-muted-foreground/60 before:content-[attr(data-placeholder)]" : ""}`}
+        className={`relative h-[88px] overflow-y-auto w-full whitespace-pre-wrap break-words px-4 pt-2.5 pb-2.5 text-sm leading-6 text-foreground focus:outline-none ${disabled ? "cursor-not-allowed opacity-50" : ""} ${isEmpty ? "before:pointer-events-none before:absolute before:left-4 before:top-2.5 before:text-muted-foreground/60 before:content-[attr(data-placeholder)]" : ""}`}
         onInput={handleInput}
         onPaste={(e) => { e.preventDefault(); const text = e.clipboardData.getData("text/plain"); document.execCommand("insertText", false, text); }}
         onKeyDown={handleKeyDown}
@@ -359,32 +375,43 @@ export function ComposerEditor({
         onBlur={() => { setTimeout(() => { if (document.activeElement !== editorRef.current) closeMention(); }, 100); }}
       />
       {/* Mention picker */}
-      {mentionQuery !== null && mentionCandidates.length > 0 && (
+      {mentionQuery !== null && (
         <div
           data-testid="ai-mention-picker"
-          className="absolute inset-x-3 bottom-[calc(100%+0.35rem)] z-40 overflow-hidden rounded-xl border border-border/70 bg-popover shadow-2xl shadow-black/25"
+          className="absolute inset-x-3 bottom-[calc(100%+0.35rem)] z-40 overflow-hidden rounded-lg border border-border/60 bg-popover shadow-xl shadow-black/20"
         >
-          <div className="border-b border-border/60 px-3 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            {t("ai.composer.mentionTitle")}
-          </div>
-          <div className="max-h-64 overflow-y-auto p-1.5">
-            {mentionCandidates.map((session, index) => (
-              <button
-                key={session.id}
-                data-testid={`ai-mention-option-${session.id}`}
-                onMouseDown={(e) => { e.preventDefault(); insertMention(session); }}
-                className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition-colors ${index === activeMentionIndex ? "bg-primary/10" : "hover:bg-muted/70"}`}
-              >
-                <span className="mt-0.5 shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
-                  @{session.host}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[12px] font-medium text-foreground">{session.title}</span>
-                  <span className="block truncate text-[11px] text-muted-foreground">{getSessionMeta(session)}</span>
-                </span>
-              </button>
-            ))}
-          </div>
+          {mentionCandidates.length === 0 ? (
+            <div className="px-3 py-2 text-[11px] text-muted-foreground/60">{t("ai.composer.mentionEmpty")}</div>
+          ) : (
+            <div ref={mentionListRef} className="max-h-44 overflow-y-auto p-0.5">
+              {mentionCandidates.map((session, index) => {
+                const detail = session.detail;
+                const urlPath = detail?.url ? (() => { try { const u = new URL(detail.url); return u.pathname + u.search; } catch { return detail.url; } })() : null;
+                return (
+                  <button
+                    key={session.id}
+                    data-testid={`ai-mention-option-${session.id}`}
+                    onMouseDown={(e) => { e.preventDefault(); insertMention(session); }}
+                    className={`flex w-full items-center gap-1.5 rounded px-2 py-1 text-left transition-colors ${index === activeMentionIndex ? "bg-primary/10" : "hover:bg-muted/50"}`}
+                  >
+                    {detail?.method && (
+                      <span className={`shrink-0 rounded px-1 py-px text-[9px] font-bold uppercase leading-none ${getMethodStyle(detail.method)}`}>
+                        {detail.method}
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                      {session.host}{urlPath ?? ""}
+                    </span>
+                    {detail?.statusCode != null && (
+                      <span className={`shrink-0 text-[10px] font-semibold tabular-nums ${getStatusStyle(detail.statusCode)}`}>
+                        {detail.statusCode}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -3,6 +3,8 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::path::PathBuf;
 use std::process::Stdio;
+use tokio::io::AsyncBufReadExt;
+use tokio::io::AsyncReadExt;
 use tokio::process::Command;
 use tokio::sync::mpsc;
 
@@ -100,8 +102,14 @@ impl ClaudeCodeCliClient {
         }
     }
 
-    fn build_prompt(messages: &[Message], _tools: &[ToolDefinition]) -> String {
+    fn build_prompt(messages: &[Message], tools: &[ToolDefinition]) -> String {
         let mut prompt = String::new();
+
+        let tool_section = super::build_tool_prompt_section(tools);
+        if !tool_section.is_empty() {
+            prompt.push_str(&tool_section);
+        }
+
         prompt.push_str("Conversation:\n");
 
         for message in messages {
@@ -122,7 +130,8 @@ impl ClaudeCodeCliClient {
             self.model.clone(),
             "--print".to_string(),
             "--output-format".to_string(),
-            "json".to_string(),
+            "stream-json".to_string(),
+            "--verbose".to_string(),
             "--dangerously-skip-permissions".to_string(),
         ];
 
@@ -133,20 +142,6 @@ impl ClaudeCodeCliClient {
 
         args.push(prompt.to_string());
         args
-    }
-
-    fn extract_error_message(stdout: &str, stderr: &str) -> String {
-        let stderr = stderr.trim();
-        if !stderr.is_empty() {
-            return stderr.to_string();
-        }
-
-        let stdout = stdout.trim();
-        if !stdout.is_empty() {
-            return stdout.to_string();
-        }
-
-        "Claude Code exited without a readable error message".to_string()
     }
 }
 
@@ -205,6 +200,34 @@ fn extract_result_text(stdout: &str) -> Result<String, AIClientError> {
     Ok(result.to_string())
 }
 
+/// Resolves a CLI binary name to its full path via the user's login shell.
+/// GUI apps on macOS do not inherit shell PATH (e.g. NVM, Homebrew paths).
+async fn resolve_cli_path(cli_path: &str) -> String {
+    if cli_path.starts_with('/') {
+        return cli_path.to_string();
+    }
+
+    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string());
+    let which_cmd = format!("which {cli_path}");
+
+    if let Ok(output) = Command::new(&shell)
+        .args(["-l", "-c", &which_cmd])
+        .output()
+        .await
+    {
+        if output.status.success() {
+            let resolved = String::from_utf8_lossy(&output.stdout)
+                .trim()
+                .to_string();
+            if !resolved.is_empty() {
+                return resolved;
+            }
+        }
+    }
+
+    cli_path.to_string()
+}
+
 #[async_trait]
 impl AIClient for ClaudeCodeCliClient {
     async fn stream_chat(
@@ -215,8 +238,9 @@ impl AIClient for ClaudeCodeCliClient {
         event_tx: mpsc::UnboundedSender<StreamChunk>,
     ) -> Result<AssistantResponse, AIClientError> {
         let prompt = Self::build_prompt(messages, tools);
+        let resolved_cli_path = resolve_cli_path(&self.cli_path).await;
 
-        let mut command = Command::new(&self.cli_path);
+        let mut command = Command::new(&resolved_cli_path);
         command
             .args(self.command_args(system_prompt, &prompt))
             .stdin(Stdio::null())
@@ -228,27 +252,148 @@ impl AIClient for ClaudeCodeCliClient {
             command.current_dir(working_directory);
         }
 
-        let output = command
-            .output()
+        let mut child = command.spawn().map_err(|e| {
+            AIClientError::Network(format!(
+                "Failed to start Claude Code CLI at '{}': {e}",
+                resolved_cli_path
+            ))
+        })?;
+
+        let stdout = child.stdout.take().ok_or_else(|| {
+            AIClientError::Network("Failed to capture Claude Code CLI stdout".to_string())
+        })?;
+        let stderr = child.stderr.take().ok_or_else(|| {
+            AIClientError::Network("Failed to capture Claude Code CLI stderr".to_string())
+        })?;
+
+        // Read stdout line by line: emit thinking deltas in real-time,
+        // capture the final `result` event for the authoritative response text.
+        let stdout_task = {
+            let event_tx = event_tx.clone();
+            tokio::spawn(async move {
+                let mut reader = tokio::io::BufReader::new(stdout).lines();
+                let mut final_result: Result<String, String> =
+                    Err(String::new());
+
+                while let Some(line) = reader.next_line().await? {
+                    let Ok(value) = serde_json::from_str::<Value>(&line) else {
+                        continue;
+                    };
+
+                    let event_type =
+                        value.get("type").and_then(Value::as_str).unwrap_or("");
+
+                    match event_type {
+                        "assistant" => {
+                            // Emit thinking content blocks immediately as they arrive.
+                            if let Some(blocks) = value
+                                .pointer("/message/content")
+                                .and_then(Value::as_array)
+                            {
+                                for block in blocks {
+                                    if block.get("type").and_then(Value::as_str)
+                                        == Some("thinking")
+                                    {
+                                        if let Some(thinking) =
+                                            block.get("thinking").and_then(Value::as_str)
+                                        {
+                                            let _ = event_tx.send(
+                                                StreamChunk::ThinkingDelta(thinking.to_string()),
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        "result" => {
+                            final_result =
+                                extract_result_text(&line).map_err(|e| e.to_string());
+                        }
+                        _ => {}
+                    }
+                }
+
+                Ok::<Result<String, String>, std::io::Error>(final_result)
+            })
+        };
+
+        let stderr_task = tokio::spawn(async move {
+            let mut reader = tokio::io::BufReader::new(stderr);
+            let mut collected = String::new();
+            reader.read_to_string(&mut collected).await?;
+            Ok::<String, std::io::Error>(collected)
+        });
+
+        let status = child.wait().await.map_err(|e| {
+            AIClientError::Network(format!("Failed waiting for Claude Code CLI: {e}"))
+        })?;
+
+        let inner_result = stdout_task
             .await
-            .map_err(|e| AIClientError::Network(format!("Failed to start Claude Code CLI: {e}")))?;
+            .map_err(|e| {
+                AIClientError::Network(format!(
+                    "Failed joining Claude Code stdout task: {e}"
+                ))
+            })?
+            .map_err(|e| {
+                AIClientError::Network(format!("Failed reading Claude Code CLI stdout: {e}"))
+            })?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stderr_text = stderr_task
+            .await
+            .map_err(|e| {
+                AIClientError::Network(format!(
+                    "Failed joining Claude Code stderr task: {e}"
+                ))
+            })?
+            .map_err(|e| {
+                AIClientError::Network(format!("Failed reading Claude Code CLI stderr: {e}"))
+            })?;
 
-        if !output.status.success() {
-            return Err(AIClientError::Api(Self::extract_error_message(
-                &stdout, &stderr,
-            )));
+        if !status.success() {
+            let error_msg = match &inner_result {
+                Err(msg) if !msg.is_empty() => msg.clone(),
+                _ => {
+                    let s = stderr_text.trim().to_string();
+                    if s.is_empty() {
+                        "Claude Code exited without a readable error message".to_string()
+                    } else {
+                        s
+                    }
+                }
+            };
+            return Err(AIClientError::Api(error_msg));
         }
 
-        let final_text = extract_result_text(&stdout)?;
-        let _ = event_tx.send(StreamChunk::TextDelta(final_text.clone()));
-        let _ = event_tx.send(StreamChunk::Done);
+        let final_text = inner_result.map_err(AIClientError::Api)?;
+        let (text_content, tool_calls) = super::parse_tool_calls(&final_text);
 
+        if tool_calls.is_empty() {
+            let _ = event_tx.send(StreamChunk::TextDelta(final_text.clone()));
+            let _ = event_tx.send(StreamChunk::Done);
+            return Ok(AssistantResponse {
+                content: vec![ContentBlock::Text { text: final_text }],
+                stop_reason: StopReason::EndTurn,
+            });
+        }
+
+        let mut content: Vec<ContentBlock> = Vec::new();
+        let trimmed_text = text_content.trim().to_string();
+        if !trimmed_text.is_empty() {
+            let _ = event_tx.send(StreamChunk::TextDelta(trimmed_text.clone()));
+            content.push(ContentBlock::Text { text: trimmed_text });
+        }
+        for call in tool_calls {
+            content.push(ContentBlock::ToolUse {
+                id: call.id,
+                name: call.name,
+                input: call.input,
+            });
+        }
+        let _ = event_tx.send(StreamChunk::Done);
         Ok(AssistantResponse {
-            content: vec![ContentBlock::Text { text: final_text }],
-            stop_reason: StopReason::EndTurn,
+            content,
+            stop_reason: StopReason::ToolUse,
         })
     }
 }
@@ -259,7 +404,7 @@ mod tests {
     use crate::ai::types::Message;
 
     #[test]
-    fn claude_command_arguments_include_json_output_and_model() {
+    fn claude_command_arguments_use_stream_json_format() {
         let client = ClaudeCodeCliClient::from_config(ClaudeCodeRuntimeConfig {
             cli_path: Some("/usr/local/bin/claude".to_string()),
             model: Some("sonnet".to_string()),
@@ -271,7 +416,8 @@ mod tests {
 
         assert!(args.contains(&"--print".to_string()));
         assert!(args.contains(&"--output-format".to_string()));
-        assert!(args.contains(&"json".to_string()));
+        assert!(args.contains(&"stream-json".to_string()));
+        assert!(args.contains(&"--verbose".to_string()));
         assert!(args.contains(&"--append-system-prompt".to_string()));
         assert_eq!(
             args.last().map(String::as_str),

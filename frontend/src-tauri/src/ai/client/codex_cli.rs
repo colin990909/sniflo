@@ -110,7 +110,7 @@ impl CodexCliClient {
     fn build_prompt(
         messages: &[Message],
         system_prompt: &str,
-        _tools: &[ToolDefinition],
+        tools: &[ToolDefinition],
     ) -> String {
         let mut prompt = String::new();
 
@@ -118,6 +118,11 @@ impl CodexCliClient {
             prompt.push_str("System instructions:\n");
             prompt.push_str(system_prompt.trim());
             prompt.push_str("\n\n");
+        }
+
+        let tool_section = super::build_tool_prompt_section(tools);
+        if !tool_section.is_empty() {
+            prompt.push_str(&tool_section);
         }
 
         prompt.push_str("Conversation:\n");
@@ -291,6 +296,36 @@ fn render_message(message: &Message) -> String {
     rendered.join("\n")
 }
 
+/// Resolves a CLI binary name to its full path via the user's login shell.
+/// This is necessary on macOS/Linux GUI apps that don't inherit the shell PATH
+/// (e.g. NVM-managed node binaries).
+async fn resolve_cli_path(cli_path: &str) -> String {
+    // If already an absolute path, use it directly.
+    if cli_path.starts_with('/') {
+        return cli_path.to_string();
+    }
+
+    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string());
+    let which_cmd = format!("which {cli_path}");
+
+    if let Ok(output) = Command::new(&shell)
+        .args(["-l", "-c", &which_cmd])
+        .output()
+        .await
+    {
+        if output.status.success() {
+            let resolved = String::from_utf8_lossy(&output.stdout)
+                .trim()
+                .to_string();
+            if !resolved.is_empty() {
+                return resolved;
+            }
+        }
+    }
+
+    cli_path.to_string()
+}
+
 #[async_trait]
 impl AIClient for CodexCliClient {
     async fn stream_chat(
@@ -303,7 +338,9 @@ impl AIClient for CodexCliClient {
         let prompt = Self::build_prompt(messages, system_prompt, tools);
         let output_path = Self::temporary_output_path();
 
-        let mut command = Command::new(&self.cli_path);
+        let resolved_cli_path = resolve_cli_path(&self.cli_path).await;
+
+        let mut command = Command::new(&resolved_cli_path);
         command
             .args(self.command_args(&output_path))
             .stdin(Stdio::piped())
@@ -315,9 +352,12 @@ impl AIClient for CodexCliClient {
             command.current_dir(working_directory);
         }
 
-        let mut child = command
-            .spawn()
-            .map_err(|e| AIClientError::Network(format!("Failed to start Codex CLI: {e}")))?;
+        let mut child = command.spawn().map_err(|e| {
+            AIClientError::Network(format!(
+                "Failed to start Codex CLI at '{}': {e}",
+                resolved_cli_path
+            ))
+        })?;
 
         let stdout = child.stdout.take().ok_or_else(|| {
             AIClientError::Network("Failed to capture Codex CLI stdout".to_string())
@@ -395,12 +435,34 @@ impl AIClient for CodexCliClient {
             )));
         }
 
-        let _ = event_tx.send(StreamChunk::TextDelta(final_text.clone()));
-        let _ = event_tx.send(StreamChunk::Done);
+        let (text_content, tool_calls) = super::parse_tool_calls(&final_text);
 
+        if tool_calls.is_empty() {
+            let _ = event_tx.send(StreamChunk::TextDelta(final_text.clone()));
+            let _ = event_tx.send(StreamChunk::Done);
+            return Ok(AssistantResponse {
+                content: vec![ContentBlock::Text { text: final_text }],
+                stop_reason: StopReason::EndTurn,
+            });
+        }
+
+        let mut content: Vec<ContentBlock> = Vec::new();
+        let trimmed_text = text_content.trim().to_string();
+        if !trimmed_text.is_empty() {
+            let _ = event_tx.send(StreamChunk::TextDelta(trimmed_text.clone()));
+            content.push(ContentBlock::Text { text: trimmed_text });
+        }
+        for call in tool_calls {
+            content.push(ContentBlock::ToolUse {
+                id: call.id,
+                name: call.name,
+                input: call.input,
+            });
+        }
+        let _ = event_tx.send(StreamChunk::Done);
         Ok(AssistantResponse {
-            content: vec![ContentBlock::Text { text: final_text }],
-            stop_reason: StopReason::EndTurn,
+            content,
+            stop_reason: StopReason::ToolUse,
         })
     }
 }

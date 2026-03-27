@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:dmg:macos": "bash ./scripts/build-macos-dmg.sh",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -202,13 +202,21 @@ export function AssistantTurn({
   const hasFinalContent = assistantBlocks.length > 0;
   const isReasoningActive = isStreaming && !hasFinalContent;
 
+  // Once the ReasoningBlock has been shown (either because there are thought/tool steps,
+  // or because we were in the "waiting for first content" state), keep it mounted so it
+  // can transition to the "已深度思考 Xs" completed state instead of being unmounted.
+  const hadReasoningRef = useRef(false);
+  if (hasReasoning || isReasoningActive) {
+    hadReasoningRef.current = true;
+  }
+
   // Compute full text for copy
   const fullText = assistantBlocks.map((b) => b.msg.content).join("\n\n");
 
   return (
     <div data-testid="chat-assistant-turn" className="mb-6">
       <div className="min-w-0 space-y-1.5">
-        {(hasReasoning || (isReasoningActive && !hasReasoning)) && (
+        {hadReasoningRef.current && (
           <ReasoningBlock
             steps={reasoningSteps}
             isActive={isReasoningActive}
