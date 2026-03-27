@@ -1,6 +1,6 @@
 {
   "name": "sniflo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cross-platform HTTP proxy debugger built with React and Tauri v2",
   "type": "module",
   "repository": {

@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicholasrice/tauri/v2/packages/cli/schema.json",
   "productName": "Sniflo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.sniflo.dev",
   "build": {
     "beforeDevCommand": "npm run dev",
